@@ -5,8 +5,8 @@
 ### Team Members
 - Talha Efe Ustun
 - Yiwei (Levi) Pan
-- Name
-- Name
+- Sophie Shu
+- Heng Zhu
 
 ---
 
