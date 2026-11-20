@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "completedSales": [
+    {
+      "id": "example-sale-1",
+      "truckId": "truck-1",
+      "completedAt": "2026-11-19T17:00:00Z",
+      "lines": [
+        {"itemId": "example-burger", "nameAtPurchase": "Classic burger", "unitPriceCents": 950, "quantity": 2},
+        {"itemId": "example-fries", "nameAtPurchase": "Fries", "unitPriceCents": 400, "quantity": 1}
+      ]
+    },
+    {
+      "id": "example-sale-2",
+      "truckId": "truck-1",
+      "completedAt": "2026-11-20T17:00:00Z",
+      "lines": [
+        {"itemId": "example-burger", "nameAtPurchase": "Classic burger", "unitPriceCents": 950, "quantity": 1}
+      ]
+    }
+  ]
+}

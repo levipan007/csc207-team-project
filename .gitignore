@@ -17,3 +17,7 @@ out/
 .env
 .env.*
 !.env.example
+
+# Local menu, sales, and image data
+data/
+demo-data/
