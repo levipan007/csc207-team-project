@@ -1,0 +1,35 @@
+TruckTrack menu module verification — November 20, 2026
+
+Command: mvn -B clean verify
+Result: BUILD SUCCESS
+JUnit: 102 tests; zero failures, errors, or skipped tests.
+Checkstyle: zero violations under config/checkstyle.xml.
+JaCoCo line coverage for this implemented module:
+  Entity layer: 68/68 lines (100%).
+  Use Case layer: 328/328 lines (100%).
+Coverage report: target/site/jacoco/index.html
+
+Integration checks exercise real Swing panel actions with the real interactors,
+presenters and JSON adapters: add, reject invalid edit, edit, sold out, reload,
+archive, include archived, disable archived edits, and historical sales summary.
+Fixture report: $32.50 / 2 completed orders / 4 units for November19-20.
+Invalid report dates clear stale results. Other-truck menu records stay isolated.
+
+View tests cover temporary PNG previews, missing images, image removal, filters,
+numeric sorting, confirmation cancellation and retained input on saving failures.
+Compact layout check: 920x600; editor scrolls and Add/Cancel remain visible.
+Rendered assembled panels visually checked after correcting status-area sizing
+and table headers. Generated previews are in target/ui-preview/.
+
+The standalone application launched. UI verification used headless Swing
+interaction tests and offscreen rendering; a complete native mouse/keyboard
+session was not included in this validation.
+
+Scope: Levi's module only. Authentication, actual order creation, the team's
+external API, and order State pattern are not implemented here. The report reads
+completed-sale snapshots; no sales data are inserted by default. Local image paths
+must remain available. Storage locking covers one JVM, not multiple app processes.
+
+Validation branch: levi-menu-management, based on origin/main at
+2352b1b43e04fb2f00b9287b5441352e89a086a1. These checks were completed before
+the initial menu-module commit.

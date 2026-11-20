@@ -1,0 +1,55 @@
+package interface_adapter;
+
+import interface_adapter.sales_summary.SalesSummaryViewModel;
+import interface_adapter.view_sales_summary.ViewSalesSummaryController;
+import interface_adapter.view_sales_summary.ViewSalesSummaryPresenter;
+import java.time.LocalDate;
+import java.util.Collections;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.Test;
+import use_case.view_sales_summary.ViewSalesSummaryInputData;
+import use_case.view_sales_summary.ViewSalesSummaryOutputData;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class SalesSummaryAdaptersTest {
+    @Test
+    void dateParsingRejectsInvalidCalendarDatesAndPassesTypedDatesToUseCase() {
+        SalesSummaryViewModel model = new SalesSummaryViewModel();
+        AtomicReference<ViewSalesSummaryInputData> received = new AtomicReference<>();
+        ViewSalesSummaryController controller = new ViewSalesSummaryController(received::set, "truck-A", model);
+        controller.execute("2026-02-30", "2026-03-01");
+        assertNull(received.get());
+        assertTrue(model.getState().isError());
+        controller.execute("2026-11-01", "2026-11-20");
+        assertEquals("truck-A", received.get().getTruckId());
+        assertEquals(LocalDate.of(2026, 11, 1), received.get().getStartDate());
+        assertEquals(LocalDate.of(2026, 11, 20), received.get().getEndDate());
+        assertEquals("2026-11-01 to 2026-11-20", model.getState().getRange());
+        received.set(null);
+        controller.execute(null, "2026-11-20");
+        assertNull(received.get());
+    }
+
+    @Test
+    void failedReportDoesNotLeaveOldTotalsDisplayedAsNewResults() {
+        SalesSummaryViewModel model = new SalesSummaryViewModel();
+        AtomicInteger calls = new AtomicInteger();
+        model.addListener(calls::incrementAndGet);
+        ViewSalesSummaryPresenter presenter = new ViewSalesSummaryPresenter(model);
+        presenter.prepareSuccessView(new ViewSalesSummaryOutputData(950, 1, 1, Collections.emptyList()));
+        assertNotNull(model.getState().getReport());
+        presenter.prepareFailView("Could not read sales.");
+        assertNull(model.getState().getReport());
+        assertTrue(model.getState().isError());
+        assertEquals(2, calls.get());
+        presenter.prepareSuccessView(new ViewSalesSummaryOutputData(0, 0, 0, Collections.emptyList()));
+        assertFalse(model.getState().isError());
+        assertEquals("No completed sales in this date range.", model.getState().getMessage());
+        assertEquals(3, calls.get());
+    }
+}
