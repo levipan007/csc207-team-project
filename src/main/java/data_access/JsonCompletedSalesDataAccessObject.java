@@ -4,7 +4,7 @@ import entity.CompletedSale;
 import entity.SaleLine;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import use_case.view_sales_summary.ViewSalesSummaryDataAccessInterface;
+import use_case.menu_management.view_sales_summary.ViewSalesSummaryDataAccessInterface;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.ArrayList;
