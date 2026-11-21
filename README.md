@@ -1,7 +1,7 @@
 # TruckTrack
 
-TruckTrack is a CSC207 food-truck management project covering menus, customer
-orders, the cooking queue, and sales reporting.
+TruckTrack is our CSC207 app for food truck owners. We're building it to manage
+menus, take customer orders, track cooking tickets, and review sales in one place.
 
 Team: Talha Efe Ustun, Yiwei (Levi) Pan, Sophie Shu, and Heng Zhu.
 
@@ -14,9 +14,10 @@ Team: Talha Efe Ustun, Yiwei (Levi) Pan, Sophie Shu, and Heng Zhu.
 | Heng | Recommendations and analytics | Order-priority recommendations, sales insights such as top items and busiest hours, and weekly revenue reports. |
 | Sophie | Ordering and cooking workflow | Taking, editing, completing, and cancelling orders; cooking tickets, progress indicators, and ready-order announcements. |
 
-These features will connect through the shared menu and order data. This branch
-currently provides the menu-management and sales-summary module; the other
-features remain planned integrations.
+These features will connect through shared menu and order data. Menu management
+and the sales-summary screen are runnable, and the `Owner` and `Truck` entities
+are in place for Talha's account features. Login, signup, ordering, cooking, and
+recommendations are still planned integrations.
 
 ## Current implementation
 
@@ -27,6 +28,7 @@ features remain planned integrations.
 - View a date-range sales summary: revenue, completed orders, units sold, and item totals.
 - Save/reload menu data with JSON persistence; keep purchase prices independent of menu edits.
 - Run the Swing screens independently of the team's upcoming login/order integration.
+- Define `Owner` and `Truck` entities with tests as the starting point for accounts and truck profiles.
 
 ## Run
 
@@ -89,7 +91,7 @@ Progress so far: `Owner` and `Truck` entities with tests. Next is the Sign up us
 
 ```text
 src/main/java/
-  entity/               MenuItem and immutable completed-sale snapshots
+  entity/               MenuItem, Owner, Truck, and immutable completed-sale snapshots
   use_case/             One action per package, with boundary and data-access interfaces
   interface_adapter/    Controllers, presenters, screen state, ViewModels and listeners
   data_access/          JSON persistence implementations
@@ -121,8 +123,8 @@ actual order store through `ViewSalesSummaryDataAccessInterface`.
 - Supply authenticated user/truck context from Talha's feature.
 - Connect Sophie's order catalogue and completed sales to the shared storage contracts.
 - Agree shared sales calculations with Heng's insights/weekly report implementation.
-- Choose and demonstrate the team's external API. This branch uses local files;
-  it does not claim an API integration or a successful API call.
+- Choose and demonstrate the team's external API. The current app stores data in
+  local JSON files; external API integration is still to come.
 - Implement and explain the agreed additional design pattern. The proposed order
   State pattern belongs to the order lifecycle; `MenuState` here is screen data.
 
