@@ -68,6 +68,23 @@ The standalone launcher supplies it for development; authentication is a separat
 team integration. For add/edit/availability/archive, the postcondition is visible
 success only after persistence succeeds.
 
+## Talha's part: accounts and truck profiles
+
+User story: As a food truck owner, I want to sign up and log in so that I only see
+my own truck's menu, orders and sales. I also want to update my profile and my
+truck's details.
+
+Planned use cases:
+
+| Use case | What happens | When it fails |
+| --- | --- | --- |
+| Sign up | Owner enters a username, password, name and truck name. A new account and truck are saved. | Username already taken, password too short, or missing fields. |
+| Log in | Owner enters username and password. The app opens with their truck. | Wrong username or password. |
+| Edit profile | Owner changes their name or email. | Invalid email or empty name. |
+| Edit truck | Owner changes the truck name or cuisine. | Empty truck name. |
+
+Progress so far: `Owner` and `Truck` entities with tests. Next is the Sign up use case.
+
 ## Clean Architecture
 
 ```text
@@ -92,6 +109,8 @@ Domain objects currently implemented:
   availability, and archived status; immutable detail/availability/archive operations.
 - `CompletedSale`: sale/truck IDs, completion timestamp, and immutable sale lines.
 - `SaleLine`: item ID, purchase-time name and unit price, quantity, and exact line total.
+- `Owner`: ID, username, password, display name, email, and truck ID.
+- `Truck`: ID, owner ID, name, and cuisine.
 
 `CompletedSale` is the read-only reporting input. It does not implement order-taking
 or the cooking workflow. The team can replace its file adapter with one over the
