@@ -44,6 +44,42 @@ class JsonMenuDataAccessObjectTest {
     }
 
     @Test
+    void categoryAndPrepTimeSurviveARestart() {
+        new JsonMenuDataAccessObject(directory).save(
+                new MenuItem("a", "truck-a", "Taco", "", 1250, "", true, false, "Mains", 7));
+        final MenuItem reloaded = new JsonMenuDataAccessObject(directory).get("a");
+        assertEquals("Mains", reloaded.getCategory());
+        assertEquals(7, reloaded.getPrepTimeMinutes());
+    }
+
+    @Test
+    void oldFilesWithoutCategoryOrPrepTimeStillLoad() throws IOException {
+        Files.writeString(directory.resolve("menu.json"), "{\"schemaVersion\":1,\"items\":[{\"id\":\"a\","
+                + "\"truckId\":\"truck-a\",\"name\":\"Taco\",\"description\":\"\",\"priceCents\":1250,"
+                + "\"imageReference\":\"\",\"available\":true,\"archived\":false}]}");
+        final MenuItem item = new JsonMenuDataAccessObject(directory).get("a");
+        assertEquals("Taco", item.getName());
+        assertEquals("Other", item.getCategory());
+        assertEquals(0, item.getPrepTimeMinutes());
+    }
+
+    @Test
+    void invalidCategoryOrPrepTimeIsMalformed() throws IOException {
+        final JsonMenuDataAccessObject dao = new JsonMenuDataAccessObject(directory);
+        dao.save(item("a", "truck-a", "A", 100));
+        final Path file = directory.resolve("menu.json");
+        final String good = Files.readString(file);
+        final Object[][] badValues = {{"category", 5}, {"prepTimeMinutes", -1}, {"prepTimeMinutes", "5"},
+            {"prepTimeMinutes", 2.5}};
+        for (Object[] bad : badValues) {
+            final JSONObject document = new JSONObject(good);
+            document.getJSONArray("items").getJSONObject(0).put((String) bad[0], bad[1]);
+            Files.writeString(file, document.toString());
+            assertThrows(DataAccessException.class, () -> dao.get("a"));
+        }
+    }
+
+    @Test
     void listsAreIsolatedAndUpdatesCannotMoveItemsBetweenTrucks() {
         final JsonMenuDataAccessObject dao = new JsonMenuDataAccessObject(directory);
         dao.save(item("a", "truck-a", "A", 100));

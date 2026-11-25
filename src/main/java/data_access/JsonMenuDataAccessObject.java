@@ -76,7 +76,7 @@ public final class JsonMenuDataAccessObject implements AddMenuItemDataAccessInte
                         JsonFileStore.string(row, "truckId"), JsonFileStore.string(row, "name"),
                         JsonFileStore.string(row, "description"), JsonFileStore.number(row, "priceCents"),
                         JsonFileStore.string(row, "imageReference"), JsonFileStore.bool(row, "available"),
-                        JsonFileStore.bool(row, "archived"));
+                        JsonFileStore.bool(row, "archived"), readCategory(row), readPrepTime(row));
                 if (items.put(item.getId(), item) != null) {
                     throw new IllegalArgumentException("Duplicate menu item ID.");
                 }
@@ -88,10 +88,27 @@ public final class JsonMenuDataAccessObject implements AddMenuItemDataAccessInte
         }
     }
 
+    /** Files written before categories existed have no category; use the default. */
+    private static String readCategory(JSONObject row) {
+        if (!row.has("category")) {
+            return MenuItem.DEFAULT_CATEGORY;
+        }
+        return JsonFileStore.string(row, "category");
+    }
+
+    /** Files written before prep times existed have none; use 0 minutes. */
+    private static int readPrepTime(JSONObject row) {
+        if (!row.has("prepTimeMinutes")) {
+            return 0;
+        }
+        return Math.toIntExact(JsonFileStore.number(row, "prepTimeMinutes"));
+    }
+
     private static JSONObject toJson(MenuItem item) {
         return new JSONObject().put("id", item.getId()).put("truckId", item.getTruckId())
                 .put("name", item.getName()).put("description", item.getDescription())
                 .put("priceCents", item.getPriceCents()).put("imageReference", item.getImageReference())
-                .put("available", item.isAvailable()).put("archived", item.isArchived());
+                .put("available", item.isAvailable()).put("archived", item.isArchived())
+                .put("category", item.getCategory()).put("prepTimeMinutes", item.getPrepTimeMinutes());
     }
 }
