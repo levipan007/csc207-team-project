@@ -6,13 +6,13 @@ import use_case.analysis.SortRanking;
 
 /** Passes rank item requests from the view to the use case. */
 public final class RankItemController {
-    private final RankItemInputBoundary inputBoundary;
+    private final RankItemInputBoundary interactor;
 
-    public RankItemController(RankItemInputBoundary inputBoundary) {
-        this.inputBoundary = inputBoundary;
+    public RankItemController(RankItemInputBoundary interactor) {
+        this.interactor= interactor;
     }
 
-    public void execute(SortRanking sorting) {
-        inputBoundary.execute(new RankItemInputData(sorting));
+    public void execute(String timePeriod, SortRanking sorting) {
+        interactor.execute(new RankItemInputData(timePeriod, sorting));
     }
 }
