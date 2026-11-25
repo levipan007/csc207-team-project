@@ -30,6 +30,29 @@ class CompletedSaleTest {
     }
 
     @Test
+    void totalsCoverOneLine() {
+        final CompletedSale sale = new CompletedSale("s", "t", Instant.EPOCH,
+                Collections.singletonList(new SaleLine("a", "A", 1250, 2)));
+        assertEquals(2500, sale.totalCents());
+        assertEquals(2, sale.totalUnits());
+    }
+
+    @Test
+    void totalsAddEveryLine() {
+        final CompletedSale sale = new CompletedSale("s", "t", Instant.EPOCH, Arrays.asList(
+                new SaleLine("a", "A", 1250, 2), new SaleLine("b", "B", 300, 1), new SaleLine("c", "C", 0, 4)));
+        assertEquals(2800, sale.totalCents());
+        assertEquals(7, sale.totalUnits());
+    }
+
+    @Test
+    void totalOverflowIsRejected() {
+        final CompletedSale sale = new CompletedSale("s", "t", Instant.EPOCH, Arrays.asList(
+                new SaleLine("a", "A", Long.MAX_VALUE, 1), new SaleLine("b", "B", 1, 1)));
+        assertThrows(ArithmeticException.class, sale::totalCents);
+    }
+
+    @Test
     void invalidSalesCannotEnterTheReport() {
         final SaleLine valid = new SaleLine("a", "A", 0, 1);
         assertThrows(IllegalArgumentException.class, () -> new SaleLine(null, "A", 1, 1));
