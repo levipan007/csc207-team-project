@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/** An immutable completed order and the prices charged when it was purchased. */
+/** An immutable completed order. Prices charged when it was purchased. */
 public final class CompletedSale {
     private final String id;
     private final String truckId;
@@ -31,4 +31,22 @@ public final class CompletedSale {
     public String getTruckId() { return truckId; }
     public Instant getCompletedAt() { return completedAt; }
     public List<SaleLine> getLines() { return lines; }
+
+    /** Returns the sum of every line total, in cents. */
+    public long totalCents() {
+        long total = 0;
+        for (SaleLine line : lines) {
+            total = Math.addExact(total, line.getLineTotalCents());
+        }
+        return total;
+    }
+
+    /** Returns the number of units sold across every line. */
+    public int totalUnits() {
+        int units = 0;
+        for (SaleLine line : lines) {
+            units = Math.addExact(units, line.getQuantity());
+        }
+        return units;
+    }
 }

@@ -9,15 +9,15 @@ Team: Talha Efe Ustun, Yiwei (Levi) Pan, Sophie Shu, and Heng Zhu.
 
 | Lead | Area | Planned features |
 | --- | --- | --- |
-| Talha | Accounts and truck profiles | Login, sign-up, and editing the owner's profile and truck details. |
-| Levi | Menu management and availability | Adding, editing, and archiving menu items, changing availability, and viewing a sales summary. |
-| Heng | Recommendations and analytics | Order-priority recommendations, sales insights such as top items and busiest hours, and weekly revenue reports. |
-| Sophie | Ordering and cooking workflow | Taking, editing, completing, and cancelling orders; cooking tickets, progress indicators, and ready-order announcements. |
+| Talha | Accounts, cooking screen and audio | Login, sign-up, and editing the owner's profile and truck details; the cooking screen of open tickets; spoken ready-order announcements. |
+| Levi | Menu management and sales summary | Adding, editing, and archiving menu items, changing availability, categories and prep times, and viewing a sales summary. |
+| Heng | Recommendations and analytics | Order-priority recommendations, ranked items, sales insights such as busiest hours, and weekly earnings reports. |
+| Sophie | Ordering and order lifecycle | Taking, editing, cancelling, and completing orders; moving orders through cooking to ready; the app's visual design. |
 
-These features will connect through shared menu and order data. Menu management
-and the sales-summary screen are runnable, and the `Owner` and `Truck` entities
-are in place for Talha's account features. Login, signup, ordering, cooking, and
-recommendations are still planned integrations.
+These features connect through shared menu and order data. Menu management and
+the sales-summary screen are runnable. The shared entities, including `Order`
+with its lifecycle, are in place. Login, signup, ordering screens, the cooking
+screen and recommendations are still in progress.
 
 ## Current implementation
 
@@ -28,7 +28,8 @@ recommendations are still planned integrations.
 - View a date-range sales summary: revenue, completed orders, units sold, and item totals.
 - Save/reload menu data with JSON persistence; keep purchase prices independent of menu edits.
 - Run the Swing screens independently of the team's upcoming login/order integration.
-- Define `Owner` and `Truck` entities with tests as the starting point for accounts and truck profiles.
+- Define `Owner` (password stored as a hash) and `Truck` entities for accounts and truck profiles.
+- Define `Order`, whose lifecycle uses the State pattern, with tests for every valid and invalid transition.
 
 ## Run
 
@@ -87,6 +88,45 @@ Planned use cases:
 
 Progress so far: `Owner` and `Truck` entities with tests. Next is the Sign up use case.
 
+## Sophie's part: ordering and the order lifecycle
+
+User story: As a truck owner, I want to take an order from the current menu,
+change it while it's being made, and move it through to pickup, so that what we
+cook matches what the customer asked for and they know when it's ready.
+
+Planned use cases:
+
+| Use case | What happens | When it fails |
+| --- | --- | --- |
+| Place order | Owner picks items and quantities. A new order is saved as placed, with the next order number. | Empty order, or an item that is sold out, archived or missing. |
+| Edit order | Owner adds, removes or changes items and notes. | The order is already ready or finished, or it would be left with no items. |
+| Cancel order | The order is cancelled and never counts as a sale. | The order is already ready or finished. |
+| Start cooking | The order moves from placed to in progress. | The order isn't placed. |
+| Mark ready | The order moves to ready and its number is announced. | The order isn't in progress. |
+| Finish order | The order is handed over and saved as a completed sale. | The order isn't ready. |
+
+Progress so far: the `Order` entity, with its lifecycle using the State pattern.
+Next is saving orders and the Place order use case.
+
+## Heng's part: recommendations and analytics
+
+User story: As a truck owner, I want the app to suggest which order to cook next
+and to show my best-selling items, busiest hours and weekly earnings, so that
+customers don't wait too long and I can plan stock and staffing.
+
+Planned use cases:
+
+| Use case | What happens | When it fails |
+| --- | --- | --- |
+| Tentative priority | Open orders are ranked by which to cook next, each with a short reason. | No open orders shows an empty list. |
+| Rank items | Menu items are ranked by units sold or revenue over a date range. | No sales shows an empty list; invalid dates show an error. |
+| Sales insights | Orders and revenue per hour, and average order value per day. | No sales shows zeros. |
+| Weekly earnings | Revenue per day for a chosen week, the total, and the change from last week. | No previous week shows "no prior data". |
+
+Analytics read completed sales only, so cancelled or unfinished orders never
+count. Progress so far: a `RankItem` use-case outline and a placeholder Analysis
+tab.
+
 ## Clean Architecture
 
 ```text
@@ -96,7 +136,7 @@ src/main/java/
   interface_adapter/    Controllers, presenters, screen state, ViewModels and listeners
   data_access/          JSON persistence implementations
   view/                 Swing panels
-  app/                  Main and AppBuilder assemble the module
+  app/                  Main and AppBuilder; each area will wire its screens in its own module
 src/test/java/           Domain, use-case, persistence, adapter, view, and integration tests
 ```
 
@@ -108,25 +148,33 @@ in [the module guide](docs/levi-menu-module.md).
 Domain objects currently implemented:
 
 - `MenuItem`: ID, truck ID, name, description, integer price in cents, image reference,
-  availability, and archived status; immutable detail/availability/archive operations.
+  availability, archived status, category, and prep time; immutable
+  detail/availability/archive operations.
 - `CompletedSale`: sale/truck IDs, completion timestamp, and immutable sale lines.
 - `SaleLine`: item ID, purchase-time name and unit price, quantity, and exact line total.
-- `Owner`: ID, username, password, display name, email, and truck ID.
+- `Owner`: ID, username, password hash, display name, email, and truck ID.
 - `Truck`: ID, owner ID, name, and cuisine.
+- `Order` and `OrderItem`: an order's lines (name and price copied at order time),
+  number, timestamps, and status. Status changes follow the State pattern:
+  `PLACED → IN_PROGRESS → READY → COMPLETED`, or `CANCELLED` from the first two.
+  A completed order becomes a `CompletedSale`.
 
-`CompletedSale` is the read-only reporting input. It does not implement order-taking
-or the cooking workflow. The team can replace its file adapter with one over the
-actual order store through `ViewSalesSummaryDataAccessInterface`.
+`CompletedSale` is the read-only reporting input for the sales summary and
+analytics. Finishing an order saves one to `completed-sales.json`, which the sales
+summary already reads.
 
 ## Remaining team integrations
 
-- Supply authenticated user/truck context from Talha's feature.
-- Connect Sophie's order catalogue and completed sales to the shared storage contracts.
-- Agree shared sales calculations with Heng's insights/weekly report implementation.
-- Choose and demonstrate the team's external API. The current app stores data in
-  local JSON files; external API integration is still to come.
-- Implement and explain the agreed additional design pattern. The proposed order
-  State pattern belongs to the order lifecycle; `MenuState` here is screen data.
+- Split app wiring into one module per area, and supply the logged-in truck to
+  every controller through a shared session (Talha's login replaces the
+  development truck selector).
+- Save orders and completed sales from Sophie's order workflow.
+- Use `CompletedSale` totals in both the sales summary and Heng's analytics, so
+  they always agree.
+- Choose the team's external API and cloud storage. The app currently stores data
+  in local JSON files.
+- Additional design pattern: the State pattern on the order lifecycle (in
+  `entity/Order`). `MenuState` is unrelated screen data.
 
 Reference structure: [official course ca-login](https://github.com/CSC207-2026F-UofT/ca-login)
 and [Chapter 11](https://github.com/CSC207-UofT/207-course-notes/blob/main/11-clean-architecture.md).

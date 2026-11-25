@@ -76,6 +76,42 @@ class MenuItemTest {
                 () -> new MenuItem("id", "truck", "Item", "", 1, "", true, true));
     }
 
+    @Test void oldConstructorUsesDefaultCategoryAndNoPrepTime() {
+        MenuItem item = item();
+        assertEquals("Other", item.getCategory());
+        assertEquals(0, item.getPrepTimeMinutes());
+    }
+
+    @Test void categoryIsTrimmedAndBlankBecomesOther() {
+        assertEquals("Mains", new MenuItem("id", "t", "Item", "", 1, "", true, false, " Mains ", 5).getCategory());
+        assertEquals("Other", new MenuItem("id", "t", "Item", "", 1, "", true, false, "  ", 5).getCategory());
+        assertEquals("Other", new MenuItem("id", "t", "Item", "", 1, "", true, false, null, 5).getCategory());
+    }
+
+    @Test void prepTimeCannotBeNegative() {
+        assertEquals(0, new MenuItem("id", "t", "Item", "", 1, "", true, false, "Mains", 0).getPrepTimeMinutes());
+        assertThrows(IllegalArgumentException.class,
+                () -> new MenuItem("id", "t", "Item", "", 1, "", true, false, "Mains", -1));
+    }
+
+    @Test void categoryAndPrepTimeSurviveEveryChange() {
+        MenuItem original = new MenuItem("id", "t", "Item", "", 100, "", true, false, "Drinks", 3);
+        MenuItem edited = original.withDetails("Renamed", "", 200, "");
+        assertEquals("Drinks", edited.getCategory());
+        assertEquals(3, edited.getPrepTimeMinutes());
+        MenuItem soldOut = original.withAvailability(false);
+        assertEquals("Drinks", soldOut.getCategory());
+        assertEquals(3, soldOut.getPrepTimeMinutes());
+        MenuItem archived = original.archive();
+        assertEquals("Drinks", archived.getCategory());
+        assertEquals(3, archived.getPrepTimeMinutes());
+        MenuItem recategorized = original.withDetails("Item", "", 100, "", "Mains", 12);
+        assertEquals("Mains", recategorized.getCategory());
+        assertEquals(12, recategorized.getPrepTimeMinutes());
+        assertEquals("Drinks", original.getCategory());
+        assertThrows(IllegalStateException.class, () -> archived.withDetails("X", "", 1, "", "Mains", 1));
+    }
+
     @Test void optionalDescriptionAndImageMayBeAbsent() {
         MenuItem item = new MenuItem(" id ", " truck ", " Item ", null, 1, null, false, false);
         assertEquals("id", item.getId());

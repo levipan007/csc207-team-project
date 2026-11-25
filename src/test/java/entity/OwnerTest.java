@@ -11,7 +11,7 @@ class OwnerTest {
         Owner owner = new Owner("o1", "talha", "secret123", "Talha", "talha@mail.com", "t1");
         assertEquals("o1", owner.getId());
         assertEquals("talha", owner.getUsername());
-        assertEquals("secret123", owner.getPassword());
+        assertEquals("secret123", owner.getPasswordHash());
         assertEquals("Talha", owner.getDisplayName());
         assertEquals("talha@mail.com", owner.getEmail());
         assertEquals("t1", owner.getTruckId());

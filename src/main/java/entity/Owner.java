@@ -1,21 +1,22 @@
 package entity;
 
 /**
- * A food truck owner's account.
+ * A food truck owner's account. The password is stored only as a hash; the raw
+ * password never reaches this class.
  */
 public class Owner {
     private final String id;
     private final String username;
-    private final String password;
+    private final String passwordHash;
     private final String displayName;
     private final String email;
     private final String truckId;
 
-    public Owner(String id, String username, String password, String displayName,
+    public Owner(String id, String username, String passwordHash, String displayName,
                  String email, String truckId) {
         checkNotBlank(id, "Owner ID");
         checkNotBlank(username, "Username");
-        checkNotBlank(password, "Password");
+        checkNotBlank(passwordHash, "Password hash");
         checkNotBlank(displayName, "Display name");
         checkNotBlank(truckId, "Truck ID");
 
@@ -31,7 +32,7 @@ public class Owner {
 
         this.id = id.trim();
         this.username = cleanUsername;
-        this.password = password;
+        this.passwordHash = passwordHash;
         this.displayName = displayName.trim();
         this.email = cleanEmail;
         this.truckId = truckId.trim();
@@ -51,8 +52,9 @@ public class Owner {
         return username;
     }
 
-    public String getPassword() {
-        return password;
+    /** Returns the stored hash produced by a {@code PasswordHasher}, never the raw password. */
+    public String getPasswordHash() {
+        return passwordHash;
     }
 
     public String getDisplayName() {
