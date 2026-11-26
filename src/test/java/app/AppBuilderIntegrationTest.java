@@ -98,6 +98,18 @@ class AppBuilderIntegrationTest {
     }
 
     @Test
+    void everyAreaAddsItsTabsInOrder() throws Exception {
+        SwingUtilities.invokeAndWait(() -> {
+            final JTabbedPane app = new AppBuilder(directory, "truck-1").buildPanel();
+            final String[] expected = {"Menu", "Sales summary", "New order", "Cooking", "Analysis", "Settings"};
+            assertEquals(expected.length, app.getTabCount());
+            for (int index = 0; index < expected.length; index++) {
+                assertEquals(expected[index], app.getTitleAt(index));
+            }
+        });
+    }
+
+    @Test
     void standaloneTruckContextDoesNotListOrChangeAnotherTrucksMenu() throws Exception {
         new JsonMenuDataAccessObject(directory).save(
                 new MenuItem("foreign", "truck-2", "Other truck's item", "", 500, "", true, false));

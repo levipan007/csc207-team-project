@@ -3,6 +3,7 @@ package interface_adapter.menu_management;
 import interface_adapter.menu_management.sales_summary.SalesSummaryViewModel;
 import interface_adapter.menu_management.view_sales_summary.ViewSalesSummaryController;
 import interface_adapter.menu_management.view_sales_summary.ViewSalesSummaryPresenter;
+import interface_adapter.session.CurrentSession;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,7 +22,9 @@ class SalesSummaryAdaptersTest {
     void dateParsingRejectsInvalidCalendarDatesAndPassesTypedDatesToUseCase() {
         SalesSummaryViewModel model = new SalesSummaryViewModel();
         AtomicReference<ViewSalesSummaryInputData> received = new AtomicReference<>();
-        ViewSalesSummaryController controller = new ViewSalesSummaryController(received::set, "truck-A", model);
+        CurrentSession session = new CurrentSession();
+        session.logIn("owner-A", "truck-A");
+        ViewSalesSummaryController controller = new ViewSalesSummaryController(received::set, session, model);
         controller.execute("2026-02-30", "2026-03-01");
         assertNull(received.get());
         assertTrue(model.getState().isError());
@@ -33,6 +36,9 @@ class SalesSummaryAdaptersTest {
         received.set(null);
         controller.execute(null, "2026-11-20");
         assertNull(received.get());
+        session.logIn("owner-B", "truck-B");
+        controller.execute("2026-11-01", "2026-11-20");
+        assertEquals("truck-B", received.get().getTruckId());
     }
 
     @Test

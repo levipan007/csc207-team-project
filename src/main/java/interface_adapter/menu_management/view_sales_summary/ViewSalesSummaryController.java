@@ -2,21 +2,23 @@ package interface_adapter.menu_management.view_sales_summary;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.Objects;
 import interface_adapter.menu_management.sales_summary.SalesSummaryViewModel;
+import interface_adapter.session.CurrentSession;
 import use_case.menu_management.view_sales_summary.ViewSalesSummaryInputBoundary;
 import use_case.menu_management.view_sales_summary.ViewSalesSummaryInputData;
 
 /** Translates date fields to typed use-case input. */
 public final class ViewSalesSummaryController {
     private final ViewSalesSummaryInputBoundary inputBoundary;
-    private final String truckId;
+    private final CurrentSession session;
     private final SalesSummaryViewModel viewModel;
 
     public ViewSalesSummaryController(ViewSalesSummaryInputBoundary inputBoundary,
-                                      String truckId, SalesSummaryViewModel viewModel) {
-        this.inputBoundary = inputBoundary;
-        this.truckId = truckId;
-        this.viewModel = viewModel;
+                                      CurrentSession session, SalesSummaryViewModel viewModel) {
+        this.inputBoundary = Objects.requireNonNull(inputBoundary);
+        this.session = Objects.requireNonNull(session);
+        this.viewModel = Objects.requireNonNull(viewModel);
     }
 
     public void execute(String startDate, String endDate) {
@@ -31,6 +33,6 @@ public final class ViewSalesSummaryController {
             return;
         }
         viewModel.getState().setRange(start + " to " + end);
-        inputBoundary.execute(new ViewSalesSummaryInputData(truckId, start, end));
+        inputBoundary.execute(new ViewSalesSummaryInputData(session.getTruckId(), start, end));
     }
 }
