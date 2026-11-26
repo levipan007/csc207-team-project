@@ -7,7 +7,7 @@ import use_case.menu_management.add_menu_item.AddMenuItemDataAccessInterface;
 import use_case.menu_management.archive_menu_item.ArchiveMenuItemDataAccessInterface;
 import use_case.menu_management.change_availability.ChangeAvailabilityDataAccessInterface;
 import use_case.menu_management.edit_menu_item.EditMenuItemDataAccessInterface;
-import use_case.menu_management.menu.DataAccessException;
+import use_case.shared.DataAccessException;
 import use_case.menu_management.view_menu.ViewMenuDataAccessInterface;
 import java.nio.file.Path;
 import java.util.ArrayList;

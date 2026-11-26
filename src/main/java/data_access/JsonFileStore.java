@@ -3,7 +3,7 @@ package data_access;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import use_case.menu_management.menu.DataAccessException;
+import use_case.shared.DataAccessException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;

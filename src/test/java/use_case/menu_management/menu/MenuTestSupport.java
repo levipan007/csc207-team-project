@@ -18,6 +18,7 @@ import use_case.menu_management.change_availability.ChangeAvailabilityDataAccess
 import use_case.menu_management.change_availability.ChangeAvailabilityOutputBoundary;
 import use_case.menu_management.change_availability.ChangeAvailabilityOutputData;
 import use_case.menu_management.view_menu.ViewMenuDataAccessInterface;
+import use_case.shared.DataAccessException;
 import use_case.menu_management.view_menu.ViewMenuOutputBoundary;
 import use_case.menu_management.view_menu.ViewMenuOutputData;
 import static org.junit.jupiter.api.Assertions.assertEquals;

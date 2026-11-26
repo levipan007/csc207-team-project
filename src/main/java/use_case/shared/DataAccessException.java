@@ -1,6 +1,6 @@
-package use_case.menu_management.menu;
+package use_case.shared;
 
-/** A storage failure translated by a data-access adapter for the use-case layer. */
+/** A storage failure, translated by a data access object for the use-case layer. Shared by every area. */
 public class DataAccessException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 

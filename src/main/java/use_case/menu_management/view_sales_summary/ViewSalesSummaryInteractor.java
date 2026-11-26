@@ -2,7 +2,7 @@ package use_case.menu_management.view_sales_summary;
 
 import entity.CompletedSale;
 import entity.SaleLine;
-import use_case.menu_management.menu.DataAccessException;
+import use_case.shared.DataAccessException;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.ArrayList;
