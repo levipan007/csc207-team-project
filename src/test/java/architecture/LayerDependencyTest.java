@@ -16,19 +16,25 @@ class LayerDependencyTest {
     @Test
     void entitiesDoNotDependOnOuterLayersOrStorageAndUiLibraries() throws IOException {
         assertForbiddenImports("entity", List.of("use_case.", "interface_adapter.", "view.",
-                "data_access.", "app.", "javax.swing.", "java.awt.", "org.json."));
+                "data_access.", "app.", "audio.", "javax.swing.", "java.awt.", "org.json."));
     }
 
     @Test
     void useCasesOnlyKnowInnerContractsAndEntities() throws IOException {
         assertForbiddenImports("use_case", List.of("interface_adapter.", "view.", "data_access.",
-                "app.", "javax.swing.", "java.awt.", "org.json.", "java.nio.file."));
+                "app.", "audio.", "javax.swing.", "java.awt.", "org.json.", "java.nio.file.", "java.io.",
+                "javax.sound.", "javax.crypto."));
     }
 
     @Test
     void interfaceAdaptersDoNotDependOnConcreteViewsOrPersistence() throws IOException {
         assertForbiddenImports("interface_adapter", List.of("view.", "data_access.", "app.",
                 "javax.swing.", "java.awt.", "org.json."));
+    }
+
+    @Test
+    void viewsDoNotReachPersistenceOrAudioDirectly() throws IOException {
+        assertForbiddenImports("view", List.of("data_access.", "audio.", "app."));
     }
 
     private void assertForbiddenImports(String layer, List<String> prefixes) throws IOException {
