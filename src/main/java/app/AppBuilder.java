@@ -2,39 +2,20 @@ package app;
 
 import data_access.JsonCompletedSalesDataAccessObject;
 import data_access.JsonMenuDataAccessObject;
-import interface_adapter.menu_management.add_menu_item.AddMenuItemController;
-import interface_adapter.menu_management.add_menu_item.AddMenuItemPresenter;
-import interface_adapter.menu_management.archive_menu_item.ArchiveMenuItemController;
-import interface_adapter.menu_management.archive_menu_item.ArchiveMenuItemPresenter;
-import interface_adapter.menu_management.change_availability.ChangeAvailabilityController;
-import interface_adapter.menu_management.change_availability.ChangeAvailabilityPresenter;
-import interface_adapter.menu_management.edit_menu_item.EditMenuItemController;
-import interface_adapter.menu_management.edit_menu_item.EditMenuItemPresenter;
-import interface_adapter.menu_management.menu.MenuViewModel;
-import interface_adapter.menu_management.sales_summary.SalesSummaryViewModel;
-import interface_adapter.menu_management.view_menu.ViewMenuController;
-import interface_adapter.menu_management.view_menu.ViewMenuPresenter;
-import interface_adapter.menu_management.view_sales_summary.ViewSalesSummaryController;
-import interface_adapter.menu_management.view_sales_summary.ViewSalesSummaryPresenter;
-import use_case.menu_management.add_menu_item.AddMenuItemInteractor;
-import use_case.menu_management.archive_menu_item.ArchiveMenuItemInteractor;
-import use_case.menu_management.change_availability.ChangeAvailabilityInteractor;
-import use_case.menu_management.edit_menu_item.EditMenuItemInteractor;
-import use_case.menu_management.view_menu.ViewMenuInteractor;
-import use_case.menu_management.view_sales_summary.ViewSalesSummaryInteractor;
-import view.analysis.AnalyticsView;
-import view.menu_management.MenuView;
-import view.menu_management.SalesSummaryView;
-
+import interface_adapter.session.CurrentSession;
 import java.awt.Dimension;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Predicate;
 import javax.swing.JFrame;
 import javax.swing.JTabbedPane;
 import javax.swing.WindowConstants;
 
-/** Connects Levi's use cases using the same assembly role as the course AppBuilder. */
+/**
+ * Builds the app: creates the shared {@link AppContext} and asks each area's
+ * module to add its tabs. Feature wiring belongs in the modules, not here.
+ */
 public final class AppBuilder {
     private final Path dataDirectory;
     private final String truckId;
@@ -56,46 +37,30 @@ public final class AppBuilder {
 
     /** Builds the screen independently of a JFrame, allowing headless integration tests. */
     public JTabbedPane buildPanel() {
-        final JsonMenuDataAccessObject menuDataAccess = new JsonMenuDataAccessObject(dataDirectory);
-        final JsonCompletedSalesDataAccessObject salesDataAccess =
-                new JsonCompletedSalesDataAccessObject(dataDirectory);
-        final MenuViewModel menuViewModel = new MenuViewModel();
-        final SalesSummaryViewModel salesViewModel = new SalesSummaryViewModel();
+        final CurrentSession session = new CurrentSession();
+        // TODO(T3): the login screen replaces this development session.
+        session.logIn("dev-owner", truckId);
+        final AppContext context = new AppContext(dataDirectory, session,
+                new JsonMenuDataAccessObject(dataDirectory),
+                new JsonCompletedSalesDataAccessObject(dataDirectory));
 
-        final AddMenuItemController add = new AddMenuItemController(
-                new AddMenuItemInteractor(menuDataAccess, new AddMenuItemPresenter(menuViewModel)), truckId);
-        final EditMenuItemController edit = new EditMenuItemController(
-                new EditMenuItemInteractor(menuDataAccess, new EditMenuItemPresenter(menuViewModel)), truckId);
-        final ArchiveMenuItemController archive = new ArchiveMenuItemController(
-                new ArchiveMenuItemInteractor(menuDataAccess, new ArchiveMenuItemPresenter(menuViewModel)), truckId);
-        final ChangeAvailabilityController availability = new ChangeAvailabilityController(
-                new ChangeAvailabilityInteractor(menuDataAccess,
-                        new ChangeAvailabilityPresenter(menuViewModel)), truckId);
-        final ViewMenuController list = new ViewMenuController(
-                new ViewMenuInteractor(menuDataAccess, new ViewMenuPresenter(menuViewModel)), truckId);
-        final MenuView menu = new MenuView(menuViewModel, add, edit, archive, availability, list,
-                archiveConfirmation);
+        final OrderingModule ordering = new OrderingModule(context);
+        final List<AppModule> modules = List.of(
+                new MenuModule(context, archiveConfirmation),
+                ordering,
+                new CookingModule(context, ordering),
+                new AnalysisModule(context, ordering),
+                new AccountsModule(context));
 
-        final ViewSalesSummaryController summary = new ViewSalesSummaryController(
-                new ViewSalesSummaryInteractor(salesDataAccess,
-                        new ViewSalesSummaryPresenter(salesViewModel)), truckId, salesViewModel);
-        final SalesSummaryView sales = new SalesSummaryView(salesViewModel, summary);
         final JTabbedPane tabs = new JTabbedPane();
-        tabs.addTab("Menu", menu);
-        tabs.addTab("Sales summary", sales);
-        tabs.addTab("Analysis", new AnalyticsView());
-        tabs.addChangeListener(event -> {
-            if (tabs.getSelectedComponent() == sales) {
-                sales.refresh();
-            }
-        });
-        menu.refresh();
-        sales.loadCurrentMonth();
+        for (AppModule module : modules) {
+            module.addTabs(tabs);
+        }
         return tabs;
     }
 
     public JFrame build() {
-        final JFrame frame = new JFrame("TruckTrack — Menu & Sales");
+        final JFrame frame = new JFrame("TruckTrack");
         frame.setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         frame.setContentPane(buildPanel());
         frame.setMinimumSize(new Dimension(950, 660));

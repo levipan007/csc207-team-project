@@ -3,6 +3,7 @@ package view.menu_management;
 import interface_adapter.menu_management.sales_summary.SalesSummaryViewModel;
 import interface_adapter.menu_management.view_sales_summary.ViewSalesSummaryController;
 import interface_adapter.menu_management.view_sales_summary.ViewSalesSummaryPresenter;
+import interface_adapter.session.CurrentSession;
 import java.util.Collections;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.JButton;
@@ -24,8 +25,10 @@ class SalesSummaryViewTest {
         SwingUtilities.invokeAndWait(() -> {
             SalesSummaryViewModel model = new SalesSummaryViewModel();
             AtomicReference<ViewSalesSummaryInputData> received = new AtomicReference<>();
+            CurrentSession session = new CurrentSession();
+            session.logIn("owner-A", "truck-A");
             SalesSummaryView view = new SalesSummaryView(model,
-                    new ViewSalesSummaryController(received::set, "truck-A", model));
+                    new ViewSalesSummaryController(received::set, session, model));
             ((JTextField) MenuViewTest.find(view, "sales.from")).setText("2026-11-01");
             ((JTextField) MenuViewTest.find(view, "sales.to")).setText("2026-11-20");
             ((JButton) MenuViewTest.find(view, "sales.refresh")).doClick();

@@ -4,7 +4,7 @@ import entity.MenuItem;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import use_case.menu_management.menu.DataAccessException;
+import use_case.shared.DataAccessException;
 import use_case.menu_management.menu.MenuItemData;
 import use_case.menu_management.menu.MenuValidation;
 

@@ -4,7 +4,7 @@ import entity.MenuItem;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Supplier;
-import use_case.menu_management.menu.DataAccessException;
+import use_case.shared.DataAccessException;
 import use_case.menu_management.menu.MenuItemData;
 import use_case.menu_management.menu.MenuValidation;
 

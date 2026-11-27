@@ -2,7 +2,7 @@ package use_case.menu_management.change_availability;
 
 import entity.MenuItem;
 import java.util.Objects;
-import use_case.menu_management.menu.DataAccessException;
+import use_case.shared.DataAccessException;
 import use_case.menu_management.menu.MenuItemData;
 import use_case.menu_management.menu.MenuValidation;
 

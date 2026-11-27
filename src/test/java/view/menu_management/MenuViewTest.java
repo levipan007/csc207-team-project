@@ -11,6 +11,7 @@ import interface_adapter.menu_management.edit_menu_item.EditMenuItemPresenter;
 import interface_adapter.menu_management.menu.MenuViewModel;
 import interface_adapter.menu_management.view_menu.ViewMenuController;
 import interface_adapter.menu_management.view_menu.ViewMenuPresenter;
+import interface_adapter.session.CurrentSession;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Rectangle;
@@ -254,15 +255,17 @@ class MenuViewTest {
         private final AtomicReference<ArchiveMenuItemInputData> archive = new AtomicReference<>();
         private final AtomicReference<ChangeAvailabilityInputData> availability = new AtomicReference<>();
         private final AtomicReference<String> loadedTruck = new AtomicReference<>();
+        private final CurrentSession session = new CurrentSession();
         private final MenuView view;
 
         Harness(boolean archiveConfirmed) {
+            session.logIn("owner-A", "truck-A");
             view = new MenuView(model,
-                    new AddMenuItemController(add::set, "truck-A"),
-                    new EditMenuItemController(edit::set, "truck-A"),
-                    new ArchiveMenuItemController(archive::set, "truck-A"),
-                    new ChangeAvailabilityController(availability::set, "truck-A"),
-                    new ViewMenuController(input -> loadedTruck.set(input.getTruckId()), "truck-A"),
+                    new AddMenuItemController(add::set, session),
+                    new EditMenuItemController(edit::set, session),
+                    new ArchiveMenuItemController(archive::set, session),
+                    new ChangeAvailabilityController(availability::set, session),
+                    new ViewMenuController(input -> loadedTruck.set(input.getTruckId()), session),
                     name -> archiveConfirmed);
         }
         JTable table() { return (JTable) find(view, "menu.table"); }

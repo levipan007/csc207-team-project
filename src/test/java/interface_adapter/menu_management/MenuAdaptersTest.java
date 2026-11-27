@@ -11,6 +11,7 @@ import interface_adapter.menu_management.menu.MenuViewModel;
 import interface_adapter.menu_management.menu.MenuViewModelListener;
 import interface_adapter.menu_management.menu.MoneyFormatter;
 import interface_adapter.menu_management.view_menu.ViewMenuPresenter;
+import interface_adapter.session.CurrentSession;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -80,13 +81,26 @@ class MenuAdaptersTest {
     @Test
     void controllerPassesUserInputAndTruckContextWithoutPretendingToSave() {
         AtomicReference<AddMenuItemInputData> received = new AtomicReference<>();
-        new AddMenuItemController(received::set, "truck-A")
+        CurrentSession session = new CurrentSession();
+        session.logIn("owner-A", "truck-A");
+        new AddMenuItemController(received::set, session)
                 .execute("Burger", "Lettuce", "9.50", "photo.png");
         assertEquals("truck-A", received.get().getTruckId());
         assertEquals("Burger", received.get().getName());
         assertEquals("Lettuce", received.get().getDescription());
         assertEquals("9.50", received.get().getPrice());
         assertEquals("photo.png", received.get().getImageReference());
+    }
+
+    @Test
+    void controllerUsesTheTruckThatIsLoggedInWhenItRuns() {
+        AtomicReference<AddMenuItemInputData> received = new AtomicReference<>();
+        CurrentSession session = new CurrentSession();
+        session.logIn("owner-A", "truck-A");
+        AddMenuItemController controller = new AddMenuItemController(received::set, session);
+        session.logIn("owner-B", "truck-B");
+        controller.execute("Burger", "", "9.50", "");
+        assertEquals("truck-B", received.get().getTruckId());
     }
 
     @Test
